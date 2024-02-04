@@ -4,7 +4,7 @@ const rootRouter = require("./routers/index.js");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
-const uri = "mongodb+srv://admin:9877800644@cluster0.0m61xfx.mongodb.net/paytm";
+const { uri } = require("./config.js");
 const port = 3000;
 const app = express();
 // app config
