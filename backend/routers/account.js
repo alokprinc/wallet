@@ -23,11 +23,13 @@ router.post("/transfer", verifyToken, async (req, res) => {
 
   const toUser = await User.findOne({ username: toAccountUserName });
   const toUserId = toUser._id.toString();
-  const success = await transferFunds(fromUserId, toUserId, amount);
-  if (success) {
+  const ret = await transferFunds(fromUserId, toUserId, amount);
+  if (ret === "Success") {
     return res.status(200).json({ message: "Successfully transferred" });
-  } else {
+  } else if (ret === "failure") {
     return res.status(404).json({ message: "Failed to transfer" });
+  } else if (ret === "Insufficient funds") {
+    return res.status(401).json({ message: "Insufficient Funds" });
   }
 });
 module.exports = router;

@@ -1,34 +1,33 @@
 const mongoose = require("mongoose");
-const { ObjectId } = require("mongoose").Types;
 const { Account } = require("../models/bankModel");
 
 const transferFunds = async (fromAccountId, toAccountId, amount) => {
   const session = await mongoose.startSession();
   const fromAccount = await Account.findOne({ userId: fromAccountId });
   const toAccount = await Account.findOne({ userId: toAccountId });
-
-  console.log(fromAccountId, toAccountId);
-  console.log(fromAccount, toAccount, amount);
-
+    if(fromAccount.balance < amount){
+        await session.endSession();
+        return "Insufficient funds";
+    }
   session.startTransaction();
   try {
     await Account.findByIdAndUpdate(fromAccount._id, {
       $inc: { balance: -amount },
-    });
+    }).session(session);
     await Account.findByIdAndUpdate(toAccount._id, {
       $inc: { balance: amount },
-    });
+    }).session(session);
 
     await session.commitTransaction();
     await session.endSession();
     console.log("Transaction successfully completed");
-    return true;
+    return "Success";
   } catch (err) {
     await session.abortTransaction();
     await session.endSession();
 
     console.log("Transaction failed", err);
-    return false;
+    return "failure";
   }
 };
 
